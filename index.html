@@ -85,6 +85,15 @@ button{font:inherit;color:inherit;cursor:pointer}
 .feedback{border-radius:12px;padding:10px 14px;font-weight:600;margin-bottom:12px}
 .feedback.ok{background:var(--ok-soft);color:var(--ok)}
 .feedback.bad{background:var(--bad-soft);color:var(--bad)}
+.exp{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.exp summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--brand);list-style:none}
+.exp summary::-webkit-details-marker{display:none}
+.exp summary::after{content:' ▾';color:var(--muted)}
+.exp[open] summary::after{content:' ▴'}
+.exp .tag{display:inline-block;background:var(--brand-soft);color:var(--brand);border-radius:8px;padding:2px 8px;font-size:13px;margin:0 14px 8px}
+.exp ol{margin:0;padding:0 16px 14px 36px;line-height:1.7}
+.exp li{margin-bottom:4px}
+.exp .warn{font-size:12px;color:var(--muted);padding:0 14px 12px}
 .nav{display:flex;gap:10px}
 .nav button{flex:1;border-radius:12px;padding:13px 0;font-size:16px;font-weight:600;border:1px solid var(--line);background:var(--card)}
 .nav .primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
@@ -189,6 +198,7 @@ button{font:inherit;color:inherit;cursor:pointer}
     </div>
     <div class="opts" id="opts"></div>
     <div class="feedback hidden" id="feedback"></div>
+    <details class="exp hidden" id="exp"><summary>📖 看詳解</summary><div id="expBody"></div></details>
     <div class="nav">
       <button id="btnPrev">上一題</button>
       <button id="btnNext" class="primary">下一題</button>
@@ -464,6 +474,14 @@ function renderQ(){
     fb.className = 'feedback ' + (ok ? 'ok' : 'bad');
     fb.textContent = !ans ? `沒有作答。正確答案是 ${ansText(e,q)}` : ok ? (q.ans.length > 1 ? `答對了！（這題 ${ansText(e,q)} 都算對）` : '答對了！🎉') : `答錯了，正確答案是 ${ansText(e,q)}`;
   } else fb.className = 'feedback hidden';
+
+  // 詳解：作答後（或交卷後）才顯示；答錯時自動展開
+  const exp = $('exp');
+  if (showKey && q.exp){
+    exp.classList.remove('hidden');
+    exp.open = !q.ans.includes(ans);
+    $('expBody').innerHTML = `<span class="tag">觀念：${esc(q.exp.c)}</span><ol>${q.exp.s.map(t => `<li>${esc(t)}</li>`).join('')}</ol><div class="warn">詳解由 AI 撰寫並與官方答案核對過，僅供參考。</div>`;
+  } else exp.classList.add('hidden');
 
   $('btnPrev').disabled = S.idx === 0;
   const last = S.idx === S.items.length - 1;
