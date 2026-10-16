@@ -191,7 +191,7 @@ button{font:inherit;color:inherit;cursor:pointer}
     <div class="qcard">
       <div class="qhead">
         <b id="qNum"></b><span style="font-size:12px;color:var(--muted);flex:1;margin-left:8px">點圖可放大</span>
-        <button class="link-btn" id="btnPage">看整頁 ↗</button>
+        <span><button class="link-btn" id="btnCtx">📄 題組資料</button> <button class="link-btn" id="btnPage">看整頁 ↗</button></span>
       </div>
       <div class="note hidden" id="qNote"></div>
       <img class="qimg" id="qImg" alt="題目">
@@ -458,6 +458,7 @@ function renderQ(){
   if (q.img){ $('qNote').classList.add('hidden'); }
   else { $('qNote').textContent = `這題沒有單獨的題目圖，請在下面整頁中找「第 ${q.n} 題」。`; $('qNote').classList.remove('hidden'); }
   $('btnPage').classList.toggle('hidden', !q.page || !q.img);
+  $('btnCtx').classList.toggle('hidden', !q.ctx);
 
   const ans = S.answers[S.idx], lock = locked(S.idx);
   const showKey = S.submitted || (S.mode !== 'test' && ans);
@@ -613,6 +614,7 @@ $('qImg').addEventListener('click', () => openZoom($('qImg').src));
 // 裁切後較小的圖在電腦大螢幕上不要被放大到模糊
 $('qImg').addEventListener('load', () => { const i = $('qImg'); i.style.maxWidth = Math.round(i.naturalWidth * 1.6) + 'px'; i.style.margin = '0 auto'; });
 $('btnPage').addEventListener('click', () => QZ.url(cur().q.page).then(openZoom));
+$('btnCtx').addEventListener('click', () => QZ.url(cur().q.ctx).then(openZoom));
 $('zoomImg').addEventListener('click', () => $('zoom').classList.toggle('big'));
 $('zoomClose').addEventListener('click', closeZoom);
 
