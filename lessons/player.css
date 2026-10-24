@@ -87,3 +87,4 @@ select{font:inherit;max-width:100%;min-height:42px;border:1px solid var(--line);
 .tbl td.hl{background:var(--brand);color:var(--brand-ink);font-weight:800}
 .blk{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%}
 .eq sup,.big sup,.mid sup,.box sup{font-size:.6em}
+.ch{min-width:84px;font-size:24px}

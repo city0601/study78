@@ -125,10 +125,12 @@ async function run(){
   }
 }
 function renderQuiz(q, i){
+  const ch = q.choices;   // 有 choices 就是選擇題（例如 ['〇', '×']），答案 ans 寫選項文字
   $('stage').innerHTML = `<span class="scene-tag">換你試試看</span><div class="quiz">
-    <p class="mid">${q.q}</p>
-    <input id="qa" type="number" inputmode="numeric" aria-label="你的答案">
-    <button class="main" id="qb">送出答案</button>
+    <p class="mid">${q.q}</p>` + (ch
+      ? `<div class="row">${ch.map((c, k) => `<button class="main ch" data-k="${k}">${c}</button>`).join('')}</div>`
+      : `<input id="qa" type="number" inputmode="numeric" aria-label="你的答案">
+    <button class="main" id="qb">送出答案</button>`) + `
     <div class="fb" id="qf"></div></div>`;
   let tries = 0;
   const done = (ok) => {
@@ -136,9 +138,16 @@ function renderQuiz(q, i){
     const pr = loadProg(), qz = pr.quiz || {}; qz[i] = ok ? 1 : 0; saveProg({quiz: qz});
     $('qf').className = 'fb ' + (ok ? 'ok' : 'hint');
     $('qf').textContent = (ok ? `答對了，${NAME}好棒！` : `答案是 ${q.ans}。`) + q.expl;
-    $('qb').textContent = '繼續 ▶';
-    $('qb').onclick = () => { if (i < F.length - 1){ show(i + 1); run(); } };
+    let nb = $('qb');
+    if (!nb){ nb = document.createElement('button'); nb.className = 'main'; nb.id = 'qb'; document.querySelector('.quiz').appendChild(nb); }
+    document.querySelectorAll('.ch').forEach(x => { x.disabled = true; });
+    nb.textContent = '繼續 ▶';
+    nb.onclick = () => { if (i < F.length - 1){ show(i + 1); run(); } };
   };
+  if (ch){
+    document.querySelectorAll('.ch').forEach(btn => { btn.onclick = () => done(ch[+btn.dataset.k] === q.ans); });
+    return;
+  }
   $('qb').onclick = () => {
     const v = parseInt($('qa').value, 10); if (isNaN(v)) return;
     if (v === q.ans) return done(true);
