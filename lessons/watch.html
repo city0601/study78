@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>數學小教室</title>
+<link rel="stylesheet" href="player.css">
+<style>[hidden]{display:none!important}body{margin:0}</style>
+</head>
+<body>
+<div class="app">
+  <div class="head"><div><a class="back" href="./">← 所有單元</a><h1 id="h1"></h1></div><span id="sub"></span></div>
+  <div class="player" id="player">
+    <div class="stage" id="stage"></div>
+    <div class="cap" id="cap" aria-live="polite"></div>
+    <div class="segs" id="segs"></div>
+    <div class="names" id="names"></div>
+    <div class="ctl">
+      <button id="prev" aria-label="上一句">⏮</button>
+      <button id="play" class="main">▶ 播放</button>
+      <button id="next" aria-label="下一句">⏭</button>
+      <button id="speed" aria-label="播放速度">速度 1×</button>
+      <button id="snd" aria-pressed="true">🔊 旁白</button>
+      <select id="voice" aria-label="選擇聲音"></select>
+    </div>
+    <div class="start" id="start">
+      <div class="big" id="hook">準備好了嗎？</div>
+      <label class="nm">先告訴老師你的名字<input id="nm" maxlength="8" placeholder="例如：小明" autocomplete="off"></label>
+      <button class="main" id="go">▶ 開始上課</button>
+      <p>建議開聲音。沒有聲音也能看字幕。</p>
+    </div>
+  </div>
+  <p class="note">小提醒：旁白預設用你裝置上最自然的中文語音，可以用旁邊的選單換聲音；有些裝置沒有中文語音，就只會顯示字幕。</p>
+</div>
+<script src="crypto.js"></script>
+<script src="components.js"></script>
+<script src="player.js"></script>
+<script>
+/* watch.html?u=<單元 id>：解鎖後載入 units/<id>.bin（加密的單元內容） */
+(function(){
+  const id = new URLSearchParams(location.search).get('u') || '';
+  function fail(msg){
+    document.querySelector('.app').innerHTML = '<p class="big">' + (msg || '找不到這個單元') + '</p><p><a class="back" href="./">← 回到所有單元</a></p>';
+  }
+  if (!/^[a-z0-9-]+$/.test(id)) return fail();
+  const path = 'units/' + id + '.bin';
+  Lock.unlock(path)
+    .then(() => Lock.text(path))
+    .then(t => { let unit; new Function('registerUnit', t)(u => { unit = u; }); unit ? startPlayer(unit) : fail(); })
+    .catch(e => fail(e && e.message && !/^http/.test(e.message) ? e.message : null));
+})();
+</script>
+</body>
+</html>
